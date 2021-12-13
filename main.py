@@ -46,4 +46,4 @@ cogs = [sheetteam(bot)]
 for cog in cogs:
     bot.add_cog(cog)
     print(f"Loaded \"{cog.qualified_name}\" cog!")
-bot.run('ODg1NzM2MTI4NTA0ODE1NjQ2.YTrYDQ.Y8GbQ1ATAfSpS2EbgRKjOcvTgO0')
+bot.run('test')
