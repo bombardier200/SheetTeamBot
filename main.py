@@ -1,8 +1,11 @@
 import discord
 from discord.ext import commands
 from discord.utils import get
+from dotenvy import load_env,read_file
+import os
 import asyncio
-
+load_env(read_file('.env'))
+TOKEN=os.getenv('DISCORD_TOKEN')
 class sheetteam(commands.Cog):
     def __init__(self,bot):
         self.bot=bot;
@@ -46,4 +49,4 @@ cogs = [sheetteam(bot)]
 for cog in cogs:
     bot.add_cog(cog)
     print(f"Loaded \"{cog.qualified_name}\" cog!")
-bot.run('test')
+bot.run(TOKEN)
