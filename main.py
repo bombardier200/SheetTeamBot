@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from discord.utils import get
+from discord.ext.commands import MissingRole
 from dotenvy import load_env,read_file
 import os
 import asyncio
@@ -30,20 +31,31 @@ class sheetteam(commands.Cog):
     @commands.command()
     async def request(self,ctx,arg):
         self.testarray.append(arg);
-        searchRole = get(ctx.guild.roles,name="admin")
+        searchRole = get(ctx.guild.roles,name="testRole")
         await ctx.send(f"Added request for sheet team {searchRole.mention}");
 
     @commands.command()
+    @commands.has_role("admin")
     async def seerequest(self,ctx):
         quote_text=''
         for elements in self.testarray:
             quote_text= quote_text +str(elements)+'\n';
         await ctx.reply(str(quote_text));
+    @seerequest.error
+    async def seerequest_error(self, ctx, error):
+        if isinstance(error, MissingRole):
+            await ctx.send("Sorry you do not have permission for that command");
     @commands.command()
+    @commands.has_role("admin")
     async def clearrequest(self,ctx,arg):
         thing=self.testarray[int(arg)]
         self.testarray.remove(thing)
         await ctx.reply("Sucesfully removed request")
+
+    @clearrequest.error
+    async def clearrequest_error(self, ctx, error):
+        if isinstance(error, MissingRole):
+            await ctx.send("Sorry you do not have permission for that command");
 bot=commands.Bot(command_prefix='$')
 cogs = [sheetteam(bot)]
 for cog in cogs:
