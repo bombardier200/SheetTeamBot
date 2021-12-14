@@ -49,7 +49,7 @@ class sheetteam(commands.Cog):
     @commands.has_role("admin")
     async def clearrequest(self,ctx,arg):
         thing=self.testarray[int(arg)]
-        del self.testarray[arg]
+        del self.testarray[arg];
         await ctx.reply("Sucesfully removed request")
 
     @clearrequest.error
