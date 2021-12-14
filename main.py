@@ -11,7 +11,7 @@ class sheetteam(commands.Cog):
     def __init__(self,bot):
         self.bot=bot;
         self.channel=None;
-        self.testarray=[];
+        self.testarray={};
     """
     @client.event
     async def on_ready():
@@ -29,8 +29,8 @@ class sheetteam(commands.Cog):
     async def ping(ctx):
         await ctx.reply("this worked")
     @commands.command()
-    async def request(self,ctx,arg):
-        self.testarray.append(arg);
+    async def request(self,ctx,request,sheetLink):
+        self.testarray[len(self.testarray)+1]={request,str(sheetLink)};
         searchRole = get(ctx.guild.roles,name="testRole")
         await ctx.send(f"Added request for sheet team {searchRole.mention}");
 
@@ -39,7 +39,7 @@ class sheetteam(commands.Cog):
     async def seerequest(self,ctx):
         quote_text=''
         for elements in self.testarray:
-            quote_text= quote_text +str(elements)+'\n';
+            quote_text= quote_text +str(self.testarray[elements])+'\n';
         await ctx.reply(str(quote_text));
     @seerequest.error
     async def seerequest_error(self, ctx, error):
@@ -49,7 +49,7 @@ class sheetteam(commands.Cog):
     @commands.has_role("admin")
     async def clearrequest(self,ctx,arg):
         thing=self.testarray[int(arg)]
-        self.testarray.remove(thing)
+        del self.testarray[arg]
         await ctx.reply("Sucesfully removed request")
 
     @clearrequest.error
