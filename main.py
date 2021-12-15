@@ -2,7 +2,9 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 from discord.ext.commands import MissingRole
+from discord import embeds
 from dotenvy import load_env,read_file
+
 import os
 import asyncio
 load_env(read_file('.env'))
@@ -48,14 +50,23 @@ class sheetteam(commands.Cog):
     @commands.command()
     @commands.has_role("admin")
     async def clearrequest(self,ctx,arg):
-        thing=self.testarray[int(arg)]
-        del self.testarray[arg];
+        self.testarray.pop(int(arg))
         await ctx.reply("Sucesfully removed request")
-
+    """
     @clearrequest.error
     async def clearrequest_error(self, ctx, error):
         if isinstance(error, MissingRole):
             await ctx.send("Sorry you do not have permission for that command");
+    """
+    @commands.command()
+    async def testembed(self,ctx):
+        embed=discord.Embed(title="Sample Embed",description="This is a test")
+        embed.set_author(name="Sheet Bot",icon_url=ctx.author.avatar_url)
+        embed.add_field(name="Request Number",value="1")
+        embed.add_field(name="Guild Name",value="Guild name")
+        embed.add_field(name="Issue",value="issue")
+        embed.add_field(name="sheet link",value="sheet link")
+        await ctx.send(embed=embed)
 bot=commands.Bot(command_prefix='$')
 cogs = [sheetteam(bot)]
 for cog in cogs:
