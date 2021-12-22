@@ -12,10 +12,10 @@ import os
 load_env(read_file('.env'))
 TOKEN=os.getenv('DISCORD_TOKEN')
 class sheetteam(commands.Cog):
-    def __init__(self,bot):
+    def __init__(self,bot,data):
         self.bot=bot;
         self.channel=None;
-        self.testarray={};
+        self.testarray=data;
     @commands.command()
     async def ping(self,ctx):
         print(self.testarray[0]["guildName"])
@@ -68,9 +68,13 @@ def on_close():
     with open("data.json","w") as file:
         json.dump(data,file,indent=3)
         print("Data is dumped")
-bot=commands.Bot(command_prefix='$')
-cogs = [sheetteam(bot)]
-for cog in cogs:
-    bot.add_cog(cog)
-    print(f"Loaded \"{cog.qualified_name}\" cog!")
-bot.run(TOKEN)
+def main():
+    atexit.register(on_close)
+    bot = commands.Bot(command_prefix='$')
+    cogs = [sheetteam(bot,data)]
+    for cog in cogs:
+        bot.add_cog(cog)
+        print(f"Loaded \"{cog.qualified_name}\" cog!")
+    bot.run(TOKEN)
+if __name__=="__main__":
+    main();
