@@ -5,7 +5,6 @@ from discord.ext.commands import MissingRole
 import atexit
 import json
 import random
-from discord import embeds
 from dotenvy import load_env,read_file
 
 import os
@@ -21,12 +20,14 @@ class sheetteam(commands.Cog):
         print(self.testarray[0]["guildName"])
         await ctx.reply("this worked")
     @commands.command()
-    async def request(self,ctx,guildName,request,sheetLink):
-        #+random.randint(1,20)
+    async def request(self,ctx,*args):
+        guildName=args[0]
+        request=" ".join(args[1:len(args)-1])
+        sheetLink=args[len(args)-1]
         ticketNumber= len(self.testarray)
         self.testarray[ticketNumber]={"guildName":guildName,"request":request,"Sheet Link":str(sheetLink)};
         searchRole = get(ctx.guild.roles,name="testRole")
-        embed = discord.Embed(title="Sample Embed", description="This is a test")
+        embed = discord.Embed(title="Sheet Team Request", description="Information regarding your request")
         embed.set_author(name="Sheet Bot", icon_url=ctx.author.avatar_url)
         embed.add_field(name="Request Number", value=ticketNumber)
         embed.add_field(name="Guild Name", value=guildName)
@@ -38,12 +39,11 @@ class sheetteam(commands.Cog):
     @commands.command()
     @commands.has_role("admin")
     async def seerequest(self,ctx):
-        quote_text=''
         embed=discord.Embed(title="Current Requests", description="This is the current requests for sheet team")
         embed.set_author(name="Sheet Bot")
         for elements in self.testarray:
-            embed.add_field(name="Guild Name",value=self.testarray[elements]["guildName"])
-            embed.add_field(name="Ticket Number",value=elements,inline=False)
+            embed.add_field(name="Guild Name",value=self.testarray[elements]["guildName"],inline=True)
+            embed.add_field(name="Ticket Number",value=elements,inline=True)
         await ctx.send(embed=embed)
     @seerequest.error
     async def seerequest_error(self, ctx, error):
@@ -52,14 +52,12 @@ class sheetteam(commands.Cog):
     @commands.command()
     @commands.has_role("admin")
     async def clearrequest(self,ctx,arg):
-        self.testarray.pop(int(arg))
+        self.testarray.pop(arg)
         await ctx.reply("Sucesfully removed request")
-    """
     @clearrequest.error
     async def clearrequest_error(self, ctx, error):
         if isinstance(error, MissingRole):
             await ctx.send("Sorry you do not have permission for that command");
-    """
 data={}
 with open("data.json","r") as file:
     for key,value in json.load(file).items():
