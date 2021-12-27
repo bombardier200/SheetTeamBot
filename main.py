@@ -17,14 +17,13 @@ class sheetteam(commands.Cog):
         self.testarray=data;
     @commands.command()
     async def ping(self,ctx):
-        print(self.testarray[0]["guildName"])
-        await ctx.reply("this worked")
+        await ctx.reply("pong")
     @commands.command()
     async def request(self,ctx,*args):
         guildName=args[0]
         request=" ".join(args[1:len(args)-1])
         sheetLink=args[len(args)-1]
-        ticketNumber= len(self.testarray)
+        ticketNumber= len(self.testarray)+random.randint(3,10)
         self.testarray[ticketNumber]={"guildName":guildName,"request":request,"Sheet Link":str(sheetLink)};
         searchRole = get(ctx.guild.roles,name="testRole")
         embed = discord.Embed(title="Sheet Team Request", description="Information regarding your request")
@@ -42,8 +41,9 @@ class sheetteam(commands.Cog):
         embed=discord.Embed(title="Current Requests", description="This is the current requests for sheet team")
         embed.set_author(name="Sheet Bot")
         for elements in self.testarray:
-            embed.add_field(name="Guild Name",value=self.testarray[elements]["guildName"],inline=True)
-            embed.add_field(name="Ticket Number",value=elements,inline=True)
+            embed.add_field(name="Guild Name", value=self.testarray[elements]["guildName"], inline=True)
+            embed.add_field(name="Ticket Number", value=elements, inline=True)
+            embed.add_field(name='\u200b',value='\u200b',inline=True)
         await ctx.send(embed=embed)
     @seerequest.error
     async def seerequest_error(self, ctx, error):
@@ -53,7 +53,7 @@ class sheetteam(commands.Cog):
     @commands.has_role("admin")
     async def clearrequest(self,ctx,arg):
         self.testarray.pop(arg)
-        await ctx.reply("Sucesfully removed request")
+        await ctx.reply("Successfully removed request")
     @clearrequest.error
     async def clearrequest_error(self, ctx, error):
         if isinstance(error, MissingRole):
