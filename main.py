@@ -36,28 +36,36 @@ class sheetteam(commands.Cog):
         await ctx.send(f"Added request for sheet team {searchRole.mention}");
 
     @commands.command()
-    @commands.has_role("admin")
     async def seerequest(self,ctx):
-        embed=discord.Embed(title="Current Requests", description="This is the current requests for sheet team")
-        embed.set_author(name="Sheet Bot")
-        for elements in self.testarray:
-            embed.add_field(name="Guild Name", value=self.testarray[elements]["guildName"], inline=True)
-            embed.add_field(name="Ticket Number", value=elements, inline=True)
-            embed.add_field(name='\u200b',value='\u200b',inline=True)
-        await ctx.send(embed=embed)
+        if ctx.channel.id==683572715025596428:
+            embed=discord.Embed(title="Current Requests", description="This is the current requests for sheet team")
+            embed.set_author(name="Sheet Bot")
+            for elements in self.testarray:
+                embed.add_field(name="Guild Name", value=self.testarray[elements]["guildName"], inline=True)
+                embed.add_field(name="Ticket Number", value=elements, inline=True)
+                embed.add_field(name='\u200b',value='\u200b',inline=True)
+            await ctx.send(embed=embed)
+        else:
+            await ctx.reply("You do not have permission to execute this command")
+    """
     @seerequest.error
     async def seerequest_error(self, ctx, error):
         if isinstance(error, MissingRole):
             await ctx.send("Sorry you do not have permission for that command");
+    """
     @commands.command()
-    @commands.has_role("admin")
     async def clearrequest(self,ctx,arg):
-        self.testarray.pop(arg)
-        await ctx.reply("Successfully removed request")
+        if ctx.channel.id == 683572715025596428:
+            self.testarray.pop(arg)
+            await ctx.reply("Successfully removed request")
+        else:
+            await ctx.reply("You do not have permission to execute this command")
+    """
     @clearrequest.error
     async def clearrequest_error(self, ctx, error):
         if isinstance(error, MissingRole):
             await ctx.send("Sorry you do not have permission for that command");
+    """
 data={}
 with open("data.json","r") as file:
     for key,value in json.load(file).items():
