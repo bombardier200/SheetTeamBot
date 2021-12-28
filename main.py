@@ -5,10 +5,12 @@ from discord.ext.commands import MissingRole
 import atexit
 import json
 import random
+from boto.s3.connection import S3Connection
 from dotenvy import load_env,read_file
 import os
 #load_env(read_file('.env'))
-TOKEN=os.getenv('DISCORD_TOKEN')
+TOKEN=S3Connection(os.environ['DISCORD_TOKEN'])
+#TOKEN=os.getenv('DISCORD_TOKEN')
 class sheetteam(commands.Cog):
     def __init__(self,bot,data):
         self.bot=bot;
