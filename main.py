@@ -7,9 +7,8 @@ import json
 import random
 from dotenvy import load_env,read_file
 import os
-print("this is a test")
 load_env(read_file('.env'))
-TOKEN=os.environ["DISCORD_TOKEN"]
+TOKEN=os.environ['DISCORD_TOKEN']
 #TOKEN=os.getenv('DISCORD_TOKEN')
 class sheetteam(commands.Cog):
     def __init__(self,bot,data):
