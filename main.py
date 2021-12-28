@@ -6,9 +6,8 @@ import atexit
 import json
 import random
 from dotenvy import load_env,read_file
-
 import os
-load_env(read_file('.env'))
+#load_env(read_file('.env'))
 TOKEN=os.getenv('DISCORD_TOKEN')
 class sheetteam(commands.Cog):
     def __init__(self,bot,data):
