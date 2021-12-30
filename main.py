@@ -1,26 +1,27 @@
 import discord
+from discord import Intents
 from discord.ext import commands
 from discord.utils import get
 from discord.ext.commands import MissingRole
+from discord_slash import SlashCommand,cog_ext,SlashContext
 import atexit
 import json
 import random
 from dotenvy import load_env,read_file
 import os
 load_env(read_file('.env'))
-print("test1")
 TOKEN=os.environ['DISCORD_TOKEN']
 #TOKEN=os.getenv('DISCORD_TOKEN')
 class sheetteam(commands.Cog):
-    def __init__(self,bot,data):
+    def __init__(self,bot,data,slash):
         self.bot=bot;
         self.channel=None;
         self.testarray=data;
-    @commands.command()
-    async def ping(self,ctx):
-        await ctx.reply("pong")
-    @commands.command()
-    async def request(self,ctx,*args):
+    @cog_ext.cog_slash(name="test",description="test1")
+    async def _test(self,ctx:SlashContext):
+        await ctx.send("pong")
+    @cog_ext.cog_slash(name="request")
+    async def _request(self,ctx:SlashContext,*args):
         guildName=args[0]
         request=" ".join(args[1:len(args)-1])
         sheetLink=args[len(args)-1]
@@ -67,6 +68,11 @@ class sheetteam(commands.Cog):
         if isinstance(error, MissingRole):
             await ctx.send("Sorry you do not have permission for that command");
     """
+    @commands.command()
+    async def hello(self,ctx,name:str=None):
+        name=name or ctx.author.name
+        await ctx.respond(f"hello {name}!")
+
 data={}
 with open("data.json","r") as file:
     for key,value in json.load(file).items():
@@ -77,8 +83,9 @@ def on_close():
         print("Data is dumped")
 def main():
     atexit.register(on_close)
-    bot = commands.Bot(command_prefix='$')
-    cogs = [sheetteam(bot,data)]
+    bot = commands.Bot(command_prefix='$',intents=discord.Intents.all())
+    slash = SlashCommand(bot, sync_commands=True,override_type=True)
+    cogs = [sheetteam(bot,data,slash)]
     for cog in cogs:
         bot.add_cog(cog)
         print(f"Loaded \"{cog.qualified_name}\" cog!")
