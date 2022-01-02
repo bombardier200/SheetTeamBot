@@ -2,47 +2,67 @@ import discord
 from discord_ui import Button, UI
 from discord import Intents
 from discord.ext import commands
-from discord.utils import get
 from discord.ext.commands import MissingRole
 from discord_slash import SlashCommand,cog_ext,SlashContext
 from discord_slash.utils.manage_commands import create_choice,create_option
 import atexit
+from discord_components import DiscordComponents,Button,Select,SelectOption,ButtonStyle,ComponentsBot
+from discord.utils import get
 import json
 import random
 from dotenvy import load_env,read_file
 import os
 load_env(read_file('.env'))
 TOKEN=os.environ['DISCORD_TOKEN']
-#TOKEN=os.getenv('DISCORD_TOKEN')
 class sheetteam(commands.Cog):
     def __init__(self,bot,data,slash):
         self.bot=bot;
         self.channel=None;
         self.testarray=data;
     test_guilds=[683572714564222978]
+    @commands.Cog.listener()
+    async def on_ready(self):
+        channel=self.bot.get_channel(683572715025596428)
+        await channel.send("test")
     @cog_ext.cog_slash(
         name="ping",
-        description="Ping test",
+        description="Ping for testing bot",
+        guild_ids=test_guilds
+    )
+    async def _ping(self,ctx:SlashCommand):
+        await ctx.send("Pong" +'\n'+ "Latency: "+ str(round(self.bot.latency*1000,1)))
+    @cog_ext.cog_slash(
+        name="request",
+        description="requesting a fix for a sheet",
         guild_ids=test_guilds,
         options=[
             create_option(
-                name="Guild Name",
+                name="guild",
                 description="Enter the guild name",
                 required=True,
-                option_type=3
+                option_type=3,
+            ),
+            create_option(
+                name="issue",
+                description="Enter the issue",
+                required=True,
+                option_type=3,
+            ),
+            create_option(
+                name="sheet",
+                description="Enter the sheet link",
+                required=True,
+                option_type=3,
             )
         ]
     )
-    async def _ping(self,ctx:SlashContext,option:str):
-        await ctx.send(option)
-    @commands.command()
-    async def request(self,ctx:SlashContext,*args):
-        guildName=args[0]
-        request=" ".join(args[1:len(args)-1])
-        sheetLink=args[len(args)-1]
-        ticketNumber= len(self.testarray)+random.randint(3,10)
-        self.testarray[ticketNumber]={"guildName":guildName,"request":request,"Sheet Link":str(sheetLink)};
-        searchRole = get(ctx.guild.roles,name="testRole")
+    async def _request(self,ctx:SlashContext,guild:str,issue:str,sheet:str):
+        guildName=guild
+        request=issue
+        sheetLink=sheet
+        ticketNumber = len(self.testarray) + random.randint(3, 10)
+        self.testarray[ticketNumber] = {"guildName": guildName, "request": request, "Sheet Link": str(sheetLink)};
+        searchRole = get(ctx.guild.roles, name="testRole")
         embed = discord.Embed(title="Sheet Team Request", description="Information regarding your request")
         embed.set_author(name="Sheet Bot", icon_url=ctx.author.avatar_url)
         embed.add_field(name="Request Number", value=ticketNumber)
@@ -51,8 +71,13 @@ class sheetteam(commands.Cog):
         embed.add_field(name="Sheet Link", value=sheetLink)
         await ctx.send(embed=embed)
         await ctx.send(f"Added request for sheet team {searchRole.mention}");
-    @commands.command()
-    async def seerequest(self,ctx):
+
+    @cog_ext.cog_slash(
+        name="seerequest",
+        description="See the current requests",
+        guild_ids=test_guilds
+    )
+    async def _seerequest(self,ctx:SlashContext):
         if ctx.channel.id==683572715025596428:
             embed=discord.Embed(title="Current Requests", description="This is the current requests for sheet team")
             embed.set_author(name="Sheet Bot")
@@ -69,10 +94,23 @@ class sheetteam(commands.Cog):
         if isinstance(error, MissingRole):
             await ctx.send("Sorry you do not have permission for that command");
     """
-    @commands.command()
-    async def clearrequest(self,ctx,arg):
+
+    @cog_ext.cog_slash(
+        name="clearrequest",
+        description="clear a request",
+        guild_ids=test_guilds,
+        options=[
+            create_option(
+                name="ticketnumber",
+                description="Enter the ticket number to clear",
+                required=True,
+                option_type=4
+            )
+        ]
+    )
+    async def _clearrequest(self,ctx:SlashContext,ticketnumber:int):
         if ctx.channel.id == 683572715025596428:
-            self.testarray.pop(arg)
+            self.testarray.pop(ticketnumber)
             await ctx.reply("Successfully removed request")
         else:
             await ctx.reply("You do not have permission to execute this command")
@@ -88,18 +126,58 @@ class sheetteam(commands.Cog):
         name=name or ctx.author.name
         await ctx.respond(f"hello {name}!")
     """
+    @commands.command()
+    async def testing(self,ctx):
+        await ctx.send(content="raid type", components=[
+                Select(
+                    placeholder='SelectMenu',
+                       options=[
+                           SelectOption(
+                               label="Normal",
+                               value="Normal"
+                           ),
+                           SelectOption(
+                               label="Heroic",
+                               value="Heroic"
+
+                           ),
+                           SelectOption(
+                               label="Mythic",
+                               value="Mythic"
+                           )
+
+                       ],
+                       custom_id="Selecttesting"
+                )
+            ])
+    @commands.Cog.listener()
+    async def on_select_option(self,interaction):
+        res = interaction.values[0]
+        if res == "Cancel":
+            await interaction.send("You have canceled your select option")
+        elif res == "Normal":
+            await interaction.send("You have chosen Normal")
+        elif res == "Heroic":
+            await interaction.send("You have chosen Heroic")
+        elif res == "Mythic":
+            await interaction.send("You have chosen Mythic")
+
 data={}
 with open("data.json","r") as file:
     for key,value in json.load(file).items():
         data[key]=value
+file.close()
+@atexit.register
 def on_close():
+    print("Got here")
     with open("data.json","w") as file:
         json.dump(data,file,indent=3)
         print("Data is dumped")
+file.close()
 def main():
-    atexit.register(on_close)
     bot = commands.Bot(command_prefix='$',intents=discord.Intents.all())
     slash = SlashCommand(bot, sync_commands=True,override_type=True)
+    test1=DiscordComponents(bot)
     cogs = [sheetteam(bot,data,slash)]
     for cog in cogs:
         bot.add_cog(cog)
