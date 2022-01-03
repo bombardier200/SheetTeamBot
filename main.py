@@ -16,9 +16,9 @@ import os
 load_env(read_file('.env'))
 TOKEN=os.environ['DISCORD_TOKEN']
 MONGODB_URI=os.environ['MONGODB_URI']
-client=MongoClient(MONGODB_URI)
-db=client["testDB"]
-mycollection=db["testDB"]
+#client=MongoClient(MONGODB_URI)
+#db=client["testDB"]
+#mycollection=db["testDB"]
 class sheetteam(commands.Cog):
     def __init__(self,bot,data,slash):
         self.bot=bot;
@@ -179,7 +179,7 @@ file.close()
 @atexit.register
 def on_close():
     print("Got here")
-    x = mycollection.insert_one(data)
+    #x = mycollection.insert_one(data)
 def main():
     bot = commands.Bot(command_prefix='$',intents=discord.Intents.all())
     slash = SlashCommand(bot, sync_commands=True,override_type=True)
