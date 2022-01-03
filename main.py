@@ -76,7 +76,6 @@ class sheetteam(commands.Cog):
         embed.add_field(name="Guild Name", value=guildName)
         embed.add_field(name="Issue", value=request)
         embed.add_field(name="Sheet Link", value=sheetLink)
-        x = mycollection.insert_one(self.testarray)
         await ctx.send(embed=embed)
         await ctx.send(f"Added request for sheet team {searchRole.mention}");
 
@@ -180,9 +179,7 @@ file.close()
 @atexit.register
 def on_close():
     print("Got here")
-    with open("data.json","w") as file:
-        json.dump(data,file,indent=3)
-        print("Data is dumped")
+    x = mycollection.insert_one(data)
 def main():
     bot = commands.Bot(command_prefix='$',intents=discord.Intents.all())
     slash = SlashCommand(bot, sync_commands=True,override_type=True)
