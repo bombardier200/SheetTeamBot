@@ -10,10 +10,15 @@ from discord_components import DiscordComponents,Button,Select,SelectOption,Butt
 from discord.utils import get
 import json
 import random
+from pymongo import MongoClient
 from dotenvy import load_env,read_file
 import os
 load_env(read_file('.env'))
 TOKEN=os.environ['DISCORD_TOKEN']
+MONGODB_URI=os.environ['MONGODB_URI']
+client=MongoClient(MONGODB_URI)
+db=client["testDB"]
+mycollection=db["testDB"]
 class sheetteam(commands.Cog):
     def __init__(self,bot,data,slash):
         self.bot=bot;
@@ -31,6 +36,8 @@ class sheetteam(commands.Cog):
     )
     async def _ping(self,ctx:SlashCommand):
         await ctx.send("Pong" +'\n'+ "Latency: "+ str(round(self.bot.latency*1000,1)))
+        for x in mycollection.find():
+            print(x)
     @cog_ext.cog_slash(
         name="request",
         description="requesting a fix for a sheet",
@@ -61,7 +68,7 @@ class sheetteam(commands.Cog):
         request=issue
         sheetLink=sheet
         ticketNumber = len(self.testarray) + random.randint(3, 10)
-        self.testarray[ticketNumber] = {"guildName": guildName, "request": request, "Sheet Link": str(sheetLink)};
+        self.testarray[str(ticketNumber)] = {"guildName": guildName, "request": request, "Sheet_Link": str(sheetLink)};
         searchRole = get(ctx.guild.roles, name="testRole")
         embed = discord.Embed(title="Sheet Team Request", description="Information regarding your request")
         embed.set_author(name="Sheet Bot", icon_url=ctx.author.avatar_url)
@@ -69,6 +76,7 @@ class sheetteam(commands.Cog):
         embed.add_field(name="Guild Name", value=guildName)
         embed.add_field(name="Issue", value=request)
         embed.add_field(name="Sheet Link", value=sheetLink)
+        x = mycollection.insert_one(self.testarray)
         await ctx.send(embed=embed)
         await ctx.send(f"Added request for sheet team {searchRole.mention}");
 
@@ -163,17 +171,18 @@ class sheetteam(commands.Cog):
             await interaction.send("You have chosen Mythic")
 
 data={}
+""""
 with open("data.json","r") as file:
     for key,value in json.load(file).items():
         data[key]=value
 file.close()
+"""
 @atexit.register
 def on_close():
     print("Got here")
     with open("data.json","w") as file:
         json.dump(data,file,indent=3)
         print("Data is dumped")
-file.close()
 def main():
     bot = commands.Bot(command_prefix='$',intents=discord.Intents.all())
     slash = SlashCommand(bot, sync_commands=True,override_type=True)
